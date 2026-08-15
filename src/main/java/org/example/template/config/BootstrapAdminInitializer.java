@@ -31,10 +31,7 @@ public class BootstrapAdminInitializer implements ApplicationRunner {
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
     private final Resource mockPersonsResource;
-    private final boolean adminEnabled;
     private final boolean personsEnabled;
-    private final String username;
-    private final String password;
 
     public BootstrapAdminInitializer(
             UserRepository userRepository,
@@ -42,20 +39,14 @@ public class BootstrapAdminInitializer implements ApplicationRunner {
             PasswordEncoder passwordEncoder,
             ObjectMapper objectMapper,
             @Value("classpath:static/persons.json") Resource mockPersonsResource,
-            @Value("${app.bootstrap-admin.enabled}") boolean adminEnabled,
-            @Value("${app.bootstrap-persons.enabled:true}") boolean personsEnabled,
-            @Value("${app.bootstrap-admin.username}") String username,
-            @Value("${app.bootstrap-admin.password}") String password
+            @Value("${app.bootstrap-persons.enabled:true}") boolean personsEnabled
     ) {
         this.userRepository = userRepository;
         this.personRepository = personRepository;
         this.passwordEncoder = passwordEncoder;
         this.objectMapper = objectMapper;
         this.mockPersonsResource = mockPersonsResource;
-        this.adminEnabled = adminEnabled;
         this.personsEnabled = personsEnabled;
-        this.username = username;
-        this.password = password;
     }
 
     @Override
@@ -103,19 +94,10 @@ public class BootstrapAdminInitializer implements ApplicationRunner {
     }
 
     private void seedAdmin() {
-        if (!adminEnabled) {
-            return;
-        }
-        if (!StringUtils.hasText(username) || !StringUtils.hasText(password)) {
-            throw new IllegalStateException(
-                    "Bootstrap admin is enabled, but APP_BOOTSTRAP_ADMIN_USERNAME or "
-                            + "APP_BOOTSTRAP_ADMIN_PASSWORD is empty"
-            );
-        }
-        if (!userRepository.existsByUsernameIgnoreCase(username.trim())) {
+        if (!userRepository.existsByUsernameIgnoreCase("admin")) {
             userRepository.save(new AppUser(
-                    username.trim(),
-                    passwordEncoder.encode(password),
+                    "admin",
+                    passwordEncoder.encode("admin123"),
                     Role.ADMIN
             ));
         }
