@@ -75,9 +75,25 @@ public class SecurityConfig {
 
     @Bean
     SecretKey jwtSecretKey(@Value("${app.jwt.secret}") String encodedSecret) {
-        byte[] keyBytes = Base64.getDecoder().decode(encodedSecret);
+        if (encodedSecret == null || encodedSecret.isBlank()) {
+            throw new IllegalStateException(
+                    "APP_JWT_SECRET is required and must be a Base64-encoded value containing at least 32 random bytes"
+            );
+        }
+
+        final byte[] keyBytes;
+        try {
+            keyBytes = Base64.getDecoder().decode(encodedSecret.trim());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalStateException(
+                    "APP_JWT_SECRET must be valid Base64 and contain at least 32 decoded bytes",
+                    exception
+            );
+        }
         if (keyBytes.length < 32) {
-            throw new IllegalArgumentException("app.jwt.secret must contain at least 32 bytes");
+            throw new IllegalStateException(
+                    "APP_JWT_SECRET must contain at least 32 decoded bytes (generate one with: openssl rand -base64 32)"
+            );
         }
         return new SecretKeySpec(keyBytes, "HmacSHA256");
     }
@@ -127,4 +143,3 @@ public class SecurityConfig {
         return source;
     }
 }
-

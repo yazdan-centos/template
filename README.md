@@ -59,6 +59,18 @@ Requirements: Java 17+ and Docker.
    set +a
    ```
 
+   On Windows PowerShell, set the required JWT secret for the current shell
+   before starting the API:
+
+   ```powershell
+   $bytes = New-Object byte[] 32
+   [System.Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+   $env:APP_JWT_SECRET = [Convert]::ToBase64String($bytes)
+   ```
+
+   The value must decode to at least 32 bytes. If it is missing or malformed,
+   startup stops with a direct `APP_JWT_SECRET` configuration error.
+
 3. On the first startup only, set
    `APP_BOOTSTRAP_ADMIN_ENABLED=true`. Start the API:
 
