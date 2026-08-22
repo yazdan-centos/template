@@ -82,6 +82,18 @@ Requirements: Java 17+ and Docker.
    `APP_BOOTSTRAP_ADMIN_ENABLED=false`. The initializer is idempotent and never
    replaces an existing password.
 
+### Run without security and JWT
+
+For local development, activate the `no-security` profile:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=no-security
+```
+
+This profile permits every request, disables JWT encoder/decoder setup, and
+removes the `/api/auth` login controller. It is intended only for local or
+internal development and must not be used for an internet-facing deployment.
+
 By default, startup also imports the bundled `src/main/resources/static/persons.json`.
 Existing records are preserved and matching is case-insensitive by email. Set
 `APP_BOOTSTRAP_PERSONS_ENABLED=false` when sample data should not be loaded,
